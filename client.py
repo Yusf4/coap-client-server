@@ -1,17 +1,23 @@
 import asyncio
-from aiocoap import Context, Message
-from aiocoap.numbers.codes import GET
+from aiocoap import *
 
-async def test_client():
-    context = await Context.create_client_context()
-    request = Message(code=GET, uri='coap://localhost:5683/humidity')
+async def fetch_coap_resource():
+    protocol = await Context.create_client_context()
+
+    request = Message(code=GET, uri="coap://127.0.0.1:5683/hello")
+
     try:
-        response = await context.request(request).response
-        print(f"Response payload: {response.payload.decode()}")
+        response = await protocol.request(request).response
+        print(f"Response: {response.payload.decode('utf-8')}")
     except Exception as e:
-        print(f"Request failed: {e}")
+        print(f"Failed to fetch resource: {e}")
     finally:
-        await asyncio.sleep(1)  # Ensure clean termination
+        await protocol.shutdown()  # Clean up the protocol context
 
 if __name__ == "__main__":
-    asyncio.run(test_client())  # Properly handles event loop creation and cleanup
+    try:
+        loop = asyncio.get_event_loop()
+        loop.run_until_complete(fetch_coap_resource())
+    finally:
+        loop.run_until_complete(loop.shutdown_asyncgens())  # Clean async generators
+        loop.close()  # Ensure the event loop is properly closed

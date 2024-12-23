@@ -1,25 +1,23 @@
 import asyncio
-from aiocoap import Context, Message
+from aiocoap import *
 from aiocoap.resource import Resource, Site
 
-class HumidityResource(Resource):
+class SimpleResource(Resource):
+    def __init__(self):
+        super().__init__()
+
     async def render_get(self, request):
-        # Your resource logic here
-        response = Message(code=aiocoap.CONTENT)
-        response.payload = b"Humidity data"
-        return response
+        return Message(payload=b"Hello, this is a CoAP server response!")
 
 async def main():
-    # Create the CoAP site
-    site = Site()
+    root = Site()
+    root.add_resource(('.well-known/core',), Resource())
+    root.add_resource(('hello',), SimpleResource())
 
-    # Add the resource to the site
-    site.add_resource(('humidity',), HumidityResource())
-
-    # Create the server context and bind to port 5683
-    context = await Context.create_server_context(site, bind=('localhost', 5683))
-    print("Server listening on coap://localhost:5683")
-    await asyncio.Event().wait()  # Keep the server running
+    # Explicitly bind to localhost
+    context = await Context.create_server_context(root, bind=("127.0.0.1", 5683))
+    print("CoAP server is running on 127.0.0.1:5683")
+    await asyncio.get_running_loop().create_future()
 
 if __name__ == "__main__":
     asyncio.run(main())
