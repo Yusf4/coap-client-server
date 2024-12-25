@@ -1,26 +1,27 @@
 import asyncio
 import random
 from aiocoap import Context, Message
+import uuid
 
 async def main():
     # Define the target server address and port
     host = '127.0.0.1'  # Server address
     port = 5683  # CoAP default port
-
+    client_id = str(uuid.uuid4())  # Generates a unique identifier
     # Create the CoAP context
     context = await Context.create_client_context()
 
     try:
         while True:
             # Generate new sensor data
-            temperature = round(random.uniform(20.0, 30.0), 2)
-            humidity = round(random.uniform(30.0, 50.0), 2)
+            temperature = round(random.uniform(25.0, 45.0), 2)
+            humidity = round(random.uniform(40.0, 80.0), 2)
 
             # Print generated data for debugging
-            print(f"Generated Data: Temperature = {temperature}°C, Humidity = {humidity}%")
+            print(f"Client ID: {client_id} ,Generated Data: Temperature = {temperature}°C, Humidity = {humidity}%")
 
             # Create a CoAP POST request with the generated payload
-            payload = f"{temperature},{humidity}"
+            payload = f"{client_id},{temperature},{humidity}"
             request = Message(code=2, uri=f'coap://{host}:{port}/sensor', payload=payload.encode())
 
             try:

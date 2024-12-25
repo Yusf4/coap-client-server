@@ -11,22 +11,33 @@ class SensorResource(Resource):
         super().__init__()
         self.temperature = None
         self.humidity = None
+        self.client_id= None
 
     async def render_post(self, request):
         # Extract temperature and humidity from the request payload
         payload = request.payload.decode()
         data = payload.split(",")  # Assume the payload is in the format "temperature,humidity"
 
-        if len(data) == 2:
+        if len(data) == 3:
             try:
-                self.temperature = float(data[0])
-                self.humidity = float(data[1])
-                print(f"message from client:temp:{self.temperature},humidity{self.humidity}")
-                response_payload = f"Received Temperature: {self.temperature}°C, Humidity: {self.humidity}%"
+                self.client_id = data[0]
+                self.temperature = float(data[1])
+                self.humidity = float(data[2])
+                print(f"Received data from client with Id:{self.client_id}")
+                print(f"are:{self.temperature},humidity{self.humidity}")
+                if 20 <= self.temperature <= 30 and 30 <= self.humidity <= 50:
+                    condition_message = "Conditions are good."
+                elif self.temperature > 30:
+                    condition_message = "It is too hot."
+                elif self.humidity > 50:
+                    condition_message = "It is too humid."
+                else:
+                    condition_message = "Conditions are not ideal."
+                response_payload = f"Received Temperature: {self.temperature}°C, Humidity: {self.humidity}%. {condition_message}"
             except ValueError:
                 response_payload = "Invalid data values. Ensure they are numeric."
         else:
-            response_payload = "Invalid data format. Expected: temperature,humidity"
+            response_payload = "Invalid data format. Expected: clientId,temperature,humidity"
 
         response = Message(code=65)  # 65 means 'Created'
         response.payload = response_payload.encode()
