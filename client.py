@@ -34,7 +34,7 @@ async def main():
                 print(f"Error while sending data: {e}")
 
             # Wait for 5 seconds before generating the next value
-            await asyncio.sleep(5)
+            await asyncio.sleep(10)
     except KeyboardInterrupt:
         print("Client stopped.")
     finally:

@@ -24,7 +24,7 @@ class SensorResource(Resource):
                 self.temperature = float(data[1])
                 self.humidity = float(data[2])
                 print(f"Received data from client with Id:{self.client_id}")
-                print(f"are:{self.temperature},humidity{self.humidity}")
+                print(f"temperature:{self.temperature},humidity:{self.humidity}")
                 if 20 <= self.temperature <= 30 and 30 <= self.humidity <= 50:
                     condition_message = "Conditions are good."
                 elif self.temperature > 30:
